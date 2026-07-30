@@ -881,11 +881,21 @@ for i, modulo in enumerate(st.session_state.modulos):
         st.rerun()
 
     valido, msg_erro, msg_aviso = verificar_conflitos_memoria(novo_formador, nova_data_presencial, st.session_state.tipo, df_geral_global, df_indisp_global)
+    
+    # --- INÍCIO DA ALTERAÇÃO: BOTÃO DE FORÇAR MARCAÇÃO ---
+    key_forcar = f"forcar_{modulo_id}"
+    
     if not valido:
         st.error(msg_erro)
-        existem_conflitos = True
+        # Cria a caixinha mágica para este módulo específico
+        forcar = st.checkbox("☑️ Forçar marcação (Turno diferente)", key=key_forcar)
+        
+        # Só levanta a bandeira de conflito global se o utilizador NÃO tiver ativado a caixa
+        if not forcar:
+            existem_conflitos = True
     elif msg_aviso:
         st.warning(msg_aviso)
+    # --- FIM DA ALTERAÇÃO ---
 
     if tem_avaliacao(modulo):
         nova_data_avaliacao = col3.date_input("Avaliação", key=f"avaliacao_{modulo_id}")
@@ -914,7 +924,7 @@ for i, modulo in enumerate(st.session_state.modulos):
 
     if col6.button("❌", key=f"del_{modulo_id}", help="Remover módulo"):
         st.session_state.modulos = [item for item in st.session_state.modulos if item["id"] != modulo_id]
-        for sufixo in ["presencial", "avaliacao", "online_inicio", "online_fim", "formador", "nome"]:
+        for sufixo in ["presencial", "avaliacao", "online_inicio", "online_fim", "formador", "nome", "forcar"]:
             st.session_state.pop(f"{sufixo}_{modulo_id}", None)
         st.rerun()
 
