@@ -884,20 +884,24 @@ for i, modulo in enumerate(st.session_state.modulos):
     
     # --- INÍCIO DA ALTERAÇÃO: BOTÃO DE FORÇAR MARCAÇÃO ---
     key_forcar = f"forcar_{modulo_id}"
+    key_ignorar = f"ignorar_{modulo_id}"
     
     if not valido:
-        # 1. Mostramos a caixa de seleção
+        # Quando há um erro (Vermelho)
         forcar = st.checkbox("☑️ Sei o que estou a fazer: Forçar marcação (Turno diferente)", key=key_forcar)
-        
-        # 2. Se a pessoa ativou a caixa, não mostramos NADA! O ecrã fica limpo.
         if forcar:
             pass 
-        # 3. Se a pessoa NÃO ativou a caixa, fica o erro VERMELHO e bloqueia
         else:
             st.error(msg_erro)
             existem_conflitos = True
+            
     elif msg_aviso:
-        st.warning(msg_aviso)
+        # Quando há um aviso de "Em Branco" (Amarelo)
+        ignorar = st.checkbox("☑️ Já confirmei com o formador (Ocultar aviso)", key=key_ignorar)
+        if ignorar:
+            pass
+        else:
+            st.warning(msg_aviso)
     # --- FIM DA ALTERAÇÃO ---
 
     if tem_avaliacao(modulo):
@@ -927,7 +931,7 @@ for i, modulo in enumerate(st.session_state.modulos):
 
     if col6.button("❌", key=f"del_{modulo_id}", help="Remover módulo"):
         st.session_state.modulos = [item for item in st.session_state.modulos if item["id"] != modulo_id]
-        for sufixo in ["presencial", "avaliacao", "online_inicio", "online_fim", "formador", "nome", "forcar"]:
+        for sufixo in ["presencial", "avaliacao", "online_inicio", "online_fim", "formador", "nome", "forcar", "ignorar"]:
             st.session_state.pop(f"{sufixo}_{modulo_id}", None)
         st.rerun()
 
