@@ -883,15 +883,18 @@ for i, modulo in enumerate(st.session_state.modulos):
     valido, msg_erro, msg_aviso = verificar_conflitos_memoria(novo_formador, nova_data_presencial, st.session_state.tipo, df_geral_global, df_indisp_global)
     
     # --- INÍCIO DA ALTERAÇÃO: BOTÃO DE FORÇAR MARCAÇÃO ---
-    key_forcar = f"forcar_{modulo_id}"
+   key_forcar = f"forcar_{modulo_id}"
     
     if not valido:
-        st.error(msg_erro)
-        # Cria a caixinha mágica para este módulo específico
-        forcar = st.checkbox("☑️ Forçar marcação (Turno diferente)", key=key_forcar)
+        # 1. Primeiro mostramos a caixa de seleção
+        forcar = st.checkbox("☑️ Sei o que estou a fazer: Forçar marcação (Turno diferente)", key=key_forcar)
         
-        # Só levanta a bandeira de conflito global se o utilizador NÃO tiver ativado a caixa
-        if not forcar:
+        # 2. Se a pessoa ativou a caixa, mostramos tudo a VERDE e a aplicação não bloqueia
+        if forcar:
+            st.success("✅ Conflito ignorado. O módulo será guardado!")
+        # 3. Se a pessoa ainda NÃO ativou a caixa, fica VERMELHO e bloqueia
+        else:
+            st.error(msg_erro)
             existem_conflitos = True
     elif msg_aviso:
         st.warning(msg_aviso)
