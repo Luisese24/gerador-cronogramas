@@ -886,13 +886,13 @@ for i, modulo in enumerate(st.session_state.modulos):
     key_forcar = f"forcar_{modulo_id}"
     
     if not valido:
-        # 1. Primeiro mostramos a caixa de seleção
+        # 1. Mostramos a caixa de seleção
         forcar = st.checkbox("☑️ Sei o que estou a fazer: Forçar marcação (Turno diferente)", key=key_forcar)
         
-        # 2. Se a pessoa ativou a caixa, mostramos tudo a VERDE e a aplicação não bloqueia
+        # 2. Se a pessoa ativou a caixa, não mostramos NADA! O ecrã fica limpo.
         if forcar:
-            st.success("✅ Conflito ignorado. O módulo será guardado!")
-        # 3. Se a pessoa ainda NÃO ativou a caixa, fica VERMELHO e bloqueia
+            pass 
+        # 3. Se a pessoa NÃO ativou a caixa, fica o erro VERMELHO e bloqueia
         else:
             st.error(msg_erro)
             existem_conflitos = True
