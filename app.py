@@ -150,7 +150,19 @@ def extrair_cronograma_geral():
         registos = []
         formadores_limpos = {remove_acentos(f): f for f in FORMADORES_OFICIAIS + ["Domingos"]}
 
-        for col in range(2, df.shape[1]):
+        # --- NOVA MAGIA DE SALTAR COLUNAS ---
+        def letra_para_numero(letras):
+            numero = 0
+            for char in letras.upper():
+                numero = numero * 26 + (ord(char) - ord('A') + 1)
+            return numero - 1
+            
+        # Podes alterar o "MB" para "WQ" ou qualquer outra coluna onde o teu cronograma atual comece!
+        COLUNA_DE_INICIO = "WQ" 
+        col_inicio_dados = max(2, letra_para_numero(COLUNA_DE_INICIO))
+
+        # Agora o robô começa a varrer a partir da coluna que tu escolheste
+        for col in range(col_inicio_dados, df.shape[1]):
             val_mes = meses_limpos.iloc[col] 
             mes_num = None
             
