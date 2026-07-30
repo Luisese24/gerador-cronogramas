@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+<style>
+
+@page {
+    size: A4 landscape;
+    margin: 4mm 6mm 6mm 6mm;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    color: #000000;
+    margin: 0;
+}
+
+.empresa {
+    font-size: 7.0pt;
+    font-weight: 700;
+    margin: 1mm 0 0 0;
+}
+
+h2 {
+    color: #800080;
+    font-size: 16.8pt;
+    line-height: 1;
+    margin: 17mm 0 2mm 3mm;
+}
+
+.subtitulo {
+    font-size: 8.4pt;
+    font-weight: 700;
+    margin-left: 3mm;
+}
+
+.topo {
+    width: 100%;
+    margin: 4mm 0 9mm 3mm;
+    font-size: 9.1pt;
+    line-height: 1.8;
+}
+
+.topo-coluna {
+    display: inline-block;
+    width: 48%;
+    vertical-align: top;
+}
+
+.topo-item {
+    margin-bottom: 2mm;
+}
+
+.topo b {
+    font-weight: 700;
+}
+
+.destaque-local {
+    color: #800080;
+    font-size: 16.8pt;
+    font-weight: 700;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+.cronograma {
+    table-layout: fixed;
+    width: auto;
+    margin-left: 0;
+}
+
+.cronograma col.horario-col {
+    width: 24mm;
+}
+
+.cronograma col.dia-col {
+    width: 7.18mm;
+}
+
+.cronograma th,
+.cronograma td {
+    border: 0.75pt solid #000000;
+    text-align: center;
+    vertical-align: middle;
+    padding: 0 1px;
+    font-size: 5.65pt;
+    line-height: 1.1;
+    overflow: hidden;
+}
+
+.cronograma tr.meses th {
+    height: 5.4mm;
+    background: #d9d9d9;
+    font-size: 5.9pt;
+    font-weight: 700;
+}
+
+.cronograma tr.cabecalho th {
+    height: 6.2mm;
+    font-weight: 700;
+}
+
+.cronograma tr.cabecalho th.ajuste-leitura {
+    font-size: 5.0pt; 
+    line-height: 1.1;
+}
+
+.cronograma tr.dias-semana th {
+    height: 4.6mm;
+    font-size: 5.45pt;
+    font-weight: 700;
+}
+
+.cronograma tr.linha-modulo td {
+    height: 5.35mm;
+    font-weight: 700;
+}
+
+.horario {
+    font-size: 5.0pt;
+    font-weight: 700;
+    word-wrap: break-word;
+}
+
+.horario-presencial {
+    background: #92d050;
+}
+
+.horario-sincrono {
+    background: #00b0f0;
+}
+
+.presencial {
+    background: #ffc000;
+    font-weight: 700;
+}
+
+.online {
+    background: #c6d9f1;
+    font-weight: 700;
+}
+
+.sincrono {
+    background: #00b0f0;
+    font-size: 4.45pt;
+    font-weight: 700;
+}
+
+.avaliacao {
+    background: #ff0000;
+    font-weight: 700;
+}
+
+.matricula {
+    background: #00b050;
+}
+
+.legenda {
+    margin: 8mm 0 0 3mm;
+    font-size: 10.5pt;
+}
+
+.legenda-titulo {
+    color: #8b0000;
+    font-size: 9.3pt;
+    font-weight: 700;
+    margin-bottom: 3mm;
+}
+
+.legenda-linha {
+    display: flex;
+    align-items: center;
+    height: 7.2mm;
+    font-weight: 700;
+}
+
+.legenda-cor {
+    width: 20mm;
+    height: 5.8mm;
+    border: 0.75pt solid #000000;
+    margin-right: 1mm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5.4pt;
+    font-weight: 700;
+}
+
+.legenda-modulos {
+    display: grid;
+    grid-template-columns: 112mm 112mm;
+    column-gap: 8mm;
+    margin-top: 1.5mm;
+}
+
+.legenda-modulos .legenda-linha {
+    height: 6.3mm;
+    font-weight: 400;
+}
+
+.legenda-modulos .legenda-cor {
+    height: 4.5mm;
+}
+
+.verde { background: #00b050; }
+.amarelo { background: #ffc000; }
+.azul-claro { background: #c6d9f1; }
+.azul { background: #00b0f0; }
+.vermelho { background: #ff0000; }
+
+.rodape {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 1.5mm;
+    text-align: center;
+    font-size: 6.5pt;
+    font-weight: 700;
+}
+
+.revisao-documento {
+    position: fixed;
+    right: 6mm;
+    bottom: 1.5mm;
+    font-size: 7pt;
+    font-weight: 700;
+    color: #555555;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="empresa">01-04 VIVERAPRENDER- Escola de Negócios e Administração, Lda.</div>
+
+<h2>Cronograma {{ tipo }}</h2>
+
+<div class="subtitulo">
+    FORMAÇÃO PEDAGÓGICA INICIAL DE FORMADORES (versão Blended- Learning)
+</div>
+
+<div class="topo">
+    <div class="topo-coluna">
+        <div class="topo-item"><b>Local de Realização:</b>&nbsp; <span class="destaque-local">{{ local }}</span></div>
+        <div class="topo-item"><b>Morada:</b> {{ morada }}</div>
+    </div>
+    <div class="topo-coluna">
+        <div class="topo-item"><b>Data limite para realizar a matrícula : {{ data_limite }}</b></div>
+        <div class="topo-item"><b>Data de início: {{ data_inicio }} &nbsp;&nbsp;&nbsp;&nbsp; Data de fim: {{ data_fim }}</b></div>
+    </div>
+</div>
+
+<table class="cronograma">
+    <colgroup>
+        <col class="horario-col">
+        <col class="horario-col">
+        {% for d in dias %}
+            <col class="dia-col">
+        {% endfor %}
+    </colgroup>
+
+    <tr class="meses">
+        <th></th>
+        <th></th>
+
+        {% if meses|length > 0 %}
+            {% set ns = namespace(current=meses[0], count=0) %}
+
+            {% for m in meses %}
+                {% if m == ns.current %}
+                    {% set ns.count = ns.count + 1 %}
+                {% else %}
+                    <th colspan="{{ ns.count }}">{{ ns.current }}</th>
+                    {% set ns.current = m %}
+                    {% set ns.count = 1 %}
+                {% endif %}
+            {% endfor %}
+
+            <th colspan="{{ ns.count }}">{{ ns.current }}</th>
+        {% endif %}
+    </tr>
+
+    <tr class="cabecalho">
+        <th class="horario-presencial ajuste-leitura">Horário das<br>aulas presenciais</th>
+        <th class="horario-sincrono ajuste-leitura">Horário das<br>sessões síncronas</th>
+
+        {% for d in dias %}
+            <th>{{ d }}</th>
+        {% endfor %}
+    </tr>
+
+    <tr class="dias-semana">
+        <th></th>
+        <th></th>
+
+        {% for ds in dias_semana %}
+            <th>{{ ds }}</th>
+        {% endfor %}
+    </tr>
+
+    {% for linha in tabela %}
+        <tr class="linha-modulo">
+            <td class="horario">{{ linha.presencial | safe }}</td>
+            <td class="horario">{{ linha.sincrono | safe }}</td>
+
+            {% for val in linha.valores %}
+                {% if val.tipo %}
+                    <td class="{{ val.tipo }}">{{ val.texto | safe }}</td>
+                {% else %}
+                    <td></td>
+                {% endif %}
+            {% endfor %}
+        </tr>
+    {% endfor %}
+</table>
+
+<div class="legenda">
+    <div class="legenda-titulo">Legenda:</div>
+
+    <div class="legenda-linha">
+        <div class="legenda-cor verde"></div>
+        <div>Data limite para realizar a matrícula e Instruções para início do curso (informação enviada por e-mail)</div>
+    </div>
+
+    <div class="legenda-linha">
+        <div class="legenda-cor amarelo"></div>
+        <div>Aulas presenciais em sala referentes a cada módulo</div>
+    </div>
+
+    <div class="legenda-linha">
+        <div class="legenda-cor azul-claro"></div>
+        <div>Sessões em e-learning/auto-aprendizagem (com apoio a vídeos infográficos e conteúdos multimédia)</div>
+    </div>
+
+    <div class="legenda-linha">
+        <div class="legenda-cor vermelho"></div>
+        <div>Data limite para realização da avaliação referente ao(s) módulo(s) com causa</div>
+    </div>
+
+    <div class="legenda-modulos">
+        <div>
+            <div class="legenda-linha">
+                <div class="legenda-cor amarelo">M1</div>
+                <div>Aula Presencial do Módulo 1</div>
+            </div>
+            <div class="legenda-linha">
+                <div class="legenda-cor amarelo">M2</div>
+                <div>Aula Presencial do Módulo 2</div>
+            </div>
+            <div class="legenda-linha">
+                <div class="legenda-cor amarelo">M3/M4</div>
+                <div>Aula Presencial dos Módulos 3 e 4</div>
+            </div>
+            <div class="legenda-linha">
+                <div class="legenda-cor azul">M5/M6</div>
+                <div>Aula em vídeo-conferência</div>
+            </div>
+        </div>
+
+        <div>
+            <div class="legenda-linha">
+                <div class="legenda-cor amarelo">M5/M6</div>
+                <div>Aula Presencial dos Módulos 5 e 6</div>
+            </div>
+            <div class="legenda-linha">
+                <div class="legenda-cor amarelo">M7/M8</div>
+                <div>Aula Presencial dos Módulos 7 e 8</div>
+            </div>
+            <div class="legenda-linha">
+                <div class="legenda-cor amarelo">M9</div>
+                <div>Aula Presencial do Módulo 9</div>
+            </div>
+            <div class="legenda-linha">
+                <div class="legenda-cor azul">M7/M8</div>
+                <div>Aula em vídeo-conferência</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="rodape">
+    01-04 Rua Conselheiro Veloso da Cruz n.º 524 - 4400-092 Vila Nova de Gaia :: Tel.: 22 371 11 00 :: E-mail: {{ email }} :: Site: www.ena.pt
+</div>
+
+<div class="revisao-documento">
+    V{{ versao }}
+</div>
+
+</body>
+</html>
