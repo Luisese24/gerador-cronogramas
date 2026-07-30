@@ -883,7 +883,7 @@ for i, modulo in enumerate(st.session_state.modulos):
     valido, msg_erro, msg_aviso = verificar_conflitos_memoria(novo_formador, nova_data_presencial, st.session_state.tipo, df_geral_global, df_indisp_global)
     
     # --- INÍCIO DA ALTERAÇÃO: BOTÃO DE FORÇAR MARCAÇÃO ---
-   key_forcar = f"forcar_{modulo_id}"
+    key_forcar = f"forcar_{modulo_id}"
     
     if not valido:
         # 1. Primeiro mostramos a caixa de seleção
