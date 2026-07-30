@@ -223,7 +223,13 @@ def extrair_cronograma_geral():
                     formador_real = next((f_original for f_limpo, f_original in formadores_limpos.items() if f_limpo in remove_acentos(formador_colA)), None)
                     if formador_real:
                         if formador_real == "Domingos": formador_real = "Domingos Dias"
-                        registos.append({"Formador": formador_real, "Data": data_formatada, "Aula": aula_str})
+                        registos.append({
+                            "Formador": formador_real, 
+                            "Data": data_formatada, 
+                            "Aula": aula_str,
+                            "Turma": str(turma_val).strip(),
+                            "Linha Excel": row + 1
+                        })
                         
         return pd.DataFrame(registos).drop_duplicates() if registos else pd.DataFrame()
     except Exception as e:
