@@ -881,7 +881,7 @@ for i, modulo in enumerate(st.session_state.modulos):
     
     if not valido:
         # Quando há um erro (Vermelho)
-        forcar = st.checkbox("☑️ Sei o que estou a fazer: Forçar marcação (Turno diferente)", key=key_forcar)
+        forcar = st.checkbox("Forçar marcação (Turno diferente)", key=key_forcar)
         if forcar:
             pass 
         else:
@@ -890,7 +890,7 @@ for i, modulo in enumerate(st.session_state.modulos):
             
     elif msg_aviso:
         # Quando há um aviso de "Em Branco" (Amarelo)
-        ignorar = st.checkbox("☑️ Já confirmei com o formador (Ocultar aviso)", key=key_ignorar)
+        ignorar = st.checkbox("Já confirmei com o formador (Ocultar aviso)", key=key_ignorar)
         if ignorar:
             pass
         else:
