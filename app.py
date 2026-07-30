@@ -285,26 +285,19 @@ def verificar_conflitos_memoria(formador, data_aula, tipo_curso, df_geral, df_in
 
     # 1. FILTRO DE OCUPAÇÃO (CRONOGRAMA GERAL)
     if not df_geral.empty:
-            aula_existente = df_geral[(df_geral["Formador"] == formador) & (df_geral["Data"] == data_str)]
-            if not aula_existente.empty:
-                import re 
-                
-                aula_detalhe = str(aula_existente.iloc[0]["Aula"])
-                aula_lower = aula_detalhe.lower()
-                
-                hora_match = re.search(r'(\d{1,2})h', aula_lower)
-                conflito_real = True 
-                
-                if hora_match:
-                    hora = int(hora_match.group(1))
-                    if hora < 18:
-                        conflito_real = False 
-                        
-                if conflito_real:
-                    if "ss" in aula_lower or "síncrona" in aula_lower or "sincrona" in aula_lower:
-                        return False, f"⚠️ Conflito de Sessão Síncrona: O(A) formador(a) {formador} já tem uma Sessão Síncrona ('{aula_detalhe}') nesse dia ({data_str})!", ""
-                    else:
-                        return False, f"⚠️ Conflito no Cronograma Geral: O(A) {formador} já tem a aula '{aula_detalhe}' marcada para o dia {data_str}!", ""
+        aulas_existentes = df_geral[(df_geral["Formador"] == formador) & (df_geral["Data"] == data_str)]
+        if not aulas_existentes.empty:
+            # Apanha TODAS as aulas encontradas nesse dia e junta-as num texto só
+            aulas_lista = aulas_existentes["Aula"].astype(str).tolist()
+            texto_aulas = " e também ".join([f"'{a}'" for a in aulas_lista])
+            
+            # Verifica se alguma das aulas encontradas é síncrona
+            tem_sincrona = any("ss" in a.lower() or "síncrona" in a.lower() or "sincrona" in a.lower() for a in aulas_lista)
+            
+            if tem_sincrona:
+                return False, f"⚠️ Conflito de Sessão Síncrona: O(A) {formador} já tem marcações nesse dia ({data_str}): {texto_aulas}!", ""
+            else:
+                return False, f"⚠️ Conflito no Cronograma: O(A) {formador} já tem as seguintes aulas no dia {data_str}: {texto_aulas}!", ""
 
     # 2. FILTRO DE DISPONIBILIDADE INDIVIDUAL
     if not df_indisp.empty:
