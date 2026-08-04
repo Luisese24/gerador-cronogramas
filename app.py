@@ -206,6 +206,19 @@ def extrair_cronograma_geral():
                 pass
             
             for row in range(linha_dias + 1, df.shape[0]):
+                # 1. DESCOBRIR O FORMADOR LOGO NO INÍCIO!
+                formador_colA = str(df.iloc[row, 0]).strip()
+                formador_real = next((f_original for f_limpo, f_original in formadores_limpos.items() if f_limpo in remove_acentos(formador_colA)), None)
+                
+                if formador_real:
+                    if formador_real == "Domingos": formador_real = "Domingos Dias"
+                    if "Aguiar" in formador_real or "Dr. Aguiar" in formador_real: formador_real = "Aguiar Castro"
+                
+                # Se não for um formador da nossa lista, salta a linha e poupa tempo
+                if not formador_real: 
+                    continue
+
+                # 2. VALIDAR A TURMA
                 turma_val = df.iloc[row, 1]
                 turma_valida = False
                 
@@ -221,9 +234,14 @@ def extrair_cronograma_geral():
                         if ("-" in t_str or "/" in t_str) and ("brg" in t_lower or "lisb" in t_lower or "vng" in t_lower or "sm" in t_lower or "lm" in t_lower):
                             turma_valida = True
                 
+                # VIA VERDE DO DIRETOR: Ignora as regras da turma! Ele entra sempre.
+                if formador_real == "Aguiar Castro":
+                    turma_valida = True
+                    
                 if not turma_valida:
                     continue
 
+                # 3. LER A AULA
                 aula = df.iloc[row, col]
                 
                 if pd.notna(aula) and str(aula).strip() != "" and str(aula).lower() != "nan":
@@ -231,27 +249,25 @@ def extrair_cronograma_geral():
                     aula_lower = aula_str.lower()
                     
                     e_sincrona = "ss" in aula_lower or "síncrona" in aula_lower or "sincrona" in aula_lower
+                    
+                    # CORTAR SÍNCRONAS FANTASMAS DO DIRETOR: Ele não dá SS, logo vão para o lixo!
+                    if formador_real == "Aguiar Castro" and e_sincrona:
+                        continue
+                        
                     e_modulo_real = "m1" in aula_lower or "m2" in aula_lower or "m3" in aula_lower or "m4" in aula_lower or "m5" in aula_lower or "m6" in aula_lower or "m7" in aula_lower or "m8" in aula_lower or "m9" in aula_lower
                     
-                    # CORTAR O MAL PELA RAIZ: Se a célula não tiver 'M' nem 'SS', deita ao lixo!
-                    # (Isto bloqueia automaticamente os 'Feriados', 'Vem assistir', etc.)
+                    # SÓ GUARDA AULAS A SÉRIO (Módulos ou SS) - Corta Feriados e Anotações
                     if not (e_sincrona or e_modulo_real): 
                         continue
                         
-                    formador_colA = str(df.iloc[row, 0]).strip()
-                    formador_real = next((f_original for f_limpo, f_original in formadores_limpos.items() if f_limpo in remove_acentos(formador_colA)), None)
-                    
-                    if formador_real:
-                        if formador_real == "Domingos": formador_real = "Domingos Dias"
-                        if "Aguiar" in formador_real or "Dr. Aguiar" in formador_real: formador_real = "Aguiar Castro"
-                        
-                        registos.append({
-                            "Formador": formador_real, 
-                            "Data": data_formatada, 
-                            "Aula": aula_str,
-                            "Turma": str(turma_val).strip(),
-                            "Linha Excel": row + 1
-                        })
+                    # 4. GUARDAR NA MEMÓRIA
+                    registos.append({
+                        "Formador": formador_real, 
+                        "Data": data_formatada, 
+                        "Aula": aula_str,
+                        "Turma": str(turma_val).strip(),
+                        "Linha Excel": row + 1
+                    })
                         
         return pd.DataFrame(registos).drop_duplicates() if registos else pd.DataFrame()
     except Exception as e:
