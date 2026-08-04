@@ -125,10 +125,8 @@ def extrair_cronograma_geral():
 
         def limpar_formador(val):
             if pd.isna(val): return np.nan
-            s = str(val).strip().lower()
-            if not s or s == "nan" or s == "-": return np.nan
-            if "só" in s or "segunda" in s or "brg" in s or "sm" in s or "lm" in s or "/" in s:
-                return np.nan
+            s = str(val).strip()
+            if not s or s.lower() == "nan" or s == "-": return np.nan
             return val
 
         df[0] = df[0].apply(limpar_formador)
@@ -231,9 +229,10 @@ def extrair_cronograma_geral():
                     aula_lower = aula_str.lower()
                     
                     e_sincrona = "ss" in aula_lower or "síncrona" in aula_lower or "sincrona" in aula_lower
+                    e_modulo_real = "m1" in aula_lower or "m2" in aula_lower or "m3" in aula_lower or "m4" in aula_lower or "m5" in aula_lower or "m6" in aula_lower or "m7" in aula_lower or "m8" in aula_lower or "m9" in aula_lower
                     
-                    if " às " in aula_lower and not e_sincrona: continue
-                    if len(aula_str) >= 14 and (" - " in aula_str) and not e_sincrona: continue
+                    if " às " in aula_lower and not (e_sincrona or e_modulo_real): continue
+                    if len(aula_str) >= 14 and (" - " in aula_str) and not (e_sincrona or e_modulo_real): continue
                         
                     formador_colA = str(df.iloc[row, 0]).strip()
                     formador_real = next((f_original for f_limpo, f_original in formadores_limpos.items() if f_limpo in remove_acentos(formador_colA)), None)
