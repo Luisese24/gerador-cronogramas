@@ -346,7 +346,11 @@ def calcular_nome_ficheiro():
         "Sábados": "SM",
         "Sábados Tarde": "ST"
     }
-    abrev_tipo = tipo_map.get(st.session_state.tipo, "FMT")
+    tipo_atual = st.session_state.tipo
+    abrev_tipo = tipo_map.get(tipo_atual, "FMT")
+    
+    # Pega no nome escolhido e substitui os espaços por underscores (ex: "Laboral manhã" vira "Laboral_manhã")
+    tipo_extenso = tipo_atual.replace(" ", "_")
 
     data_limite = st.session_state.data_limite
     str_data = data_limite.strftime("%d-%m") if data_limite else "00-00"
@@ -361,7 +365,8 @@ def calcular_nome_ficheiro():
 
     sufixo_versao = f"_V{st.session_state.versao}" if st.session_state.versao > 0 else ""
 
-    return f"C{abrev_tipo}_{str_data}_{abrev_local}{sufixo_versao}"
+    # Junta tudo no novo formato pedido!
+    return f"C{abrev_tipo}_Cronograma_{tipo_extenso}_{str_data}_{abrev_local}{sufixo_versao}"
 
 def novo_id():
     return str(uuid.uuid4())
