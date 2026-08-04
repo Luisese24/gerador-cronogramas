@@ -53,6 +53,7 @@ MAPA_EMAILS = {
 DRIVE_CRONOGRAMAS_GERAL_ID = "14WUqbC9clEEB_9dSuOTKXGI-6pdHTLEl"
 
 DRIVE_INDISP_FORMADORES = {
+    "Aguiar Castro": "",  # O Diretor está sempre disponível!
     "Elisabete Lobato": "13LnndCOf3aIYU0Dr6j7u37kb-5V9b2NLf7DlqS-WbK0",
     "Domingos Dias": "1NkfB_HuKXyvqLW0CfZHTAD7-f23s5oLvrkKQqGkPAWA",
     "Adriana Borges": "1v7u5ZYjQ39UMqdNct36KiksCVM-0CupheeXCZA_Pl2M",
