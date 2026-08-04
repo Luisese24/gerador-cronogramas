@@ -387,7 +387,7 @@ def nome_para_celula(nome):
     if name == "Sessão Síncrona - M5/M6": return "M5/M6"
     if name == "Sessão Síncrona - M7/M8": return "M7/M8"
     if name == "Sessão Síncrona": return "Sessão<br>Síncrona"
-    return name.replace("/", "<br>")
+    return name
 
 def intervalo_datas(inicio, fim):
     if not inicio or not fim or inicio > fim: return []
