@@ -729,7 +729,7 @@ if st.sidebar.button("🔄 Atualizar Dados do Drive Agora", type="primary"):
 st.sidebar.markdown("---")
 
 # --- MODO RAIO-X PARA DEBUG (ESCONDIDO) ---
-MOSTRAR_RAIO_X = False  # Muda para True se algum dia precisares de investigar erros!
+MOSTRAR_RAIO_X = True  # Muda para True se algum dia precisares de investigar erros!
 
 if MOSTRAR_RAIO_X:
     with st.sidebar.expander("🛠️ Modo Raio-X (Investigar Excel)"):
