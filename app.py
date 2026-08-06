@@ -59,7 +59,7 @@ def extrair_cronograma_geral():
         if df.shape[1] > 1: df[1] = df[1].apply(lambda x: np.nan if pd.isna(x) or str(x).strip() == "" or str(x).lower() == "nan" else str(x).strip()).ffill(limit=15)
         meses_limpos = df.iloc[linha_meses_idx].astype(object).apply(lambda x: x if not pd.isna(x) and (type(x).__name__ in ["datetime", "Timestamp"] or (isinstance(x, str) and any(c.isalpha() for c in x))) else np.nan).ffill()
         registos, formadores_limpos = [], {remove_acentos(f): f for f in FORMADORES_OFICIAIS + ["Domingos"]}
-        col_inicio_dados = max(2, sum((ord(char) - ord('A') + 1) * (26 ** i) for i, enumerate("WQ"[::-1])) - 1)
+        col_inicio_dados = max(2, sum((ord(char) - ord('A') + 1) * (26 ** i) for i, char in enumerate("WQ"[::-1])) - 1)
         for col in range(col_inicio_dados, df.shape[1]):
             val_mes = meses_limpos.iloc[col]
             mes_num = val_mes.month if type(val_mes).__name__ in ["datetime", "Timestamp"] else next((num for nome, num in MAPA_MESES.items() if nome in remove_acentos(str(val_mes)).lower()), None) if pd.notna(val_mes) else None
