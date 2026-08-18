@@ -718,3 +718,82 @@ elif sala_escolhida == "👨‍🏫 Portal do Formador":
                             st.markdown(card_html, unsafe_allow_html=True)
             except Exception as e: 
                 st.error(f"Erro: {e}")
+
+                # ---------------------------------------------------------
+# FERRAMENTA DE ADMINISTRAÇÃO: IMPORTAÇÃO DO EXCEL MASTER
+# Podes apagar este bloco depois de clicares no botão!
+# ---------------------------------------------------------
+st.markdown("---")
+st.subheader("🛠️ Ferramenta de Admin (Lançamento)")
+
+if st.button("🚨 Importar Excel Master para a Base de Dados"):
+    with st.spinner("A processar milhares de células do Excel..."):
+        import pandas as pd
+        
+        try:
+            # Lê a folha "Geral 1" do teu Excel
+            df = pd.read_excel("CronogramasFormadores_Versão Final.xlsx", sheet_name="Geral 1")
+            
+            meses_map = {'setembro': '09', 'outubro': '10', 'novembro': '11', 'dezembro': '12',
+                         'janeiro': '01', 'fevereiro': '02', 'março': '03', 'abril': '04', 
+                         'maio': '05', 'junho': '06', 'julho': '07', 'agosto': '08'}
+            
+            aulas_para_inserir = []
+            formador_atual = ""
+            colunas = df.columns
+            mes_atual_str = "09"
+            
+            # Percorre o Excel linha a linha
+            for index, row in df.iterrows():
+                if index == 0: continue # Ignora a linha dos números dos dias
+                
+                val_col0 = str(row.iloc[0]).strip()
+                if val_col0 not in ['nan', 'None', '']: formador_atual = val_col0
+                    
+                turma = str(row.iloc[1]).strip()
+                if formador_atual and turma not in ['nan', 'None', '']:
+                    # Percorre os dias daquela turma
+                    for col_i in range(2, len(df.columns)):
+                        # Descobre o mês e o ano
+                        nome_coluna = str(colunas[col_i]).split('.')[0].strip().lower()
+                        if nome_coluna in meses_map:
+                            mes_atual_str = meses_map[nome_coluna]
+                            
+                        ano_atual = 2026 if int(mes_atual_str) >= 8 else 2027
+                        
+                        dia = str(df.iloc[0, col_i]).split('.')[0]
+                        if not dia.isdigit(): continue
+                        
+                        aula = str(row.iloc[col_i]).strip()
+                        if aula not in ['nan', 'None', '']:
+                            data_formatada = f"{int(dia):02d}/{mes_atual_str}/{ano_atual}"
+                            
+                            # Detetar se é Laboral ou Pós-Laboral pela hora escrita no Excel
+                            tipo_curso = "Pós-laboral" 
+                            if any(x in aula.lower() for x in ["9h", "10h", "11h", "12h", "14h", "15h", "16h"]):
+                                tipo_curso = "Laboral"
+                                
+                            # Limpar o nome do módulo (ex: "M1 - 19h" passa a "M1")
+                            modulo = aula.split('-')[0].strip()
+                            
+                            aulas_para_inserir.append({
+                                "formador": formador_atual,
+                                "turma": turma,
+                                "data_aula": data_formatada,
+                                "aula": modulo,
+                                "tipo_curso": tipo_curso
+                            })
+            
+            # Enviar para o Supabase em blocos de 100 para não sobrecarregar
+            if aulas_para_inserir:
+                for i in range(0, len(aulas_para_inserir), 100):
+                    bloco = aulas_para_inserir[i:i+100]
+                    supabase.table("cronogramas_oficiais").insert(bloco).execute()
+                
+                st.success(f"🎉 SUCESSO! Foram importadas {len(aulas_para_inserir)} aulas perfeitamente para a Base de Dados!")
+                st.balloons()
+            else:
+                st.warning("Não encontrei aulas válidas no Excel.")
+                
+        except Exception as e:
+            st.error(f"Erro ao ler o ficheiro: {e}")
