@@ -729,6 +729,7 @@ st.subheader("🛠️ Ferramenta de Admin (Lançamento)")
 if st.button("🚨 Importar Excel Master para a Base de Dados"):
     with st.spinner("A processar milhares de células do Excel..."):
         import pandas as pd
+        import re # Necessário para ler os números das turmas e meses
         
         try:
             # Lê a folha "Geral 1" do teu Excel
@@ -741,59 +742,80 @@ if st.button("🚨 Importar Excel Master para a Base de Dados"):
             aulas_para_inserir = []
             formador_atual = ""
             colunas = df.columns
-            mes_atual_str = "09"
+            mes_atual_str = "07" # Começamos em Julho
             
             # Percorre o Excel linha a linha
             for index, row in df.iterrows():
-                if index == 0: continue # Ignora a linha dos números dos dias
+                if index == 0: continue # Ignora a linha dos dias
                 
                 val_col0 = str(row.iloc[0]).strip()
                 if val_col0 not in ['nan', 'None', '']: formador_atual = val_col0
                     
                 turma = str(row.iloc[1]).strip()
+                
                 if formador_atual and turma not in ['nan', 'None', '']:
-                    # Percorre os dias daquela turma
-                    for col_i in range(2, len(df.columns)):
-                        # Descobre o mês e o ano
-                        nome_coluna = str(colunas[col_i]).split('.')[0].strip().lower()
-                        if nome_coluna in meses_map:
-                            mes_atual_str = meses_map[nome_coluna]
+                    
+                    # --- A TUA REGRA DE OURO ATUALIZADA ---
+                    manter_turma = True
+                    
+                    # 1. Turmas com números simples (ex: 2130)
+                    if '-' not in turma and '/' not in turma:
+                        numeros = re.findall(r'\d+', turma)
+                        if numeros and int(numeros[0]) < 2130:
+                            manter_turma = False # Ignora abaixo de 2130
                             
-                        ano_atual = 2026 if int(mes_atual_str) >= 8 else 2027
-                        
-                        dia = str(df.iloc[0, col_i]).split('.')[0]
-                        if not dia.isdigit(): continue
-                        
-                        aula = str(row.iloc[col_i]).strip()
-                        if aula not in ['nan', 'None', '']:
-                            data_formatada = f"{int(dia):02d}/{mes_atual_str}/{ano_atual}"
+                    # 2. Turmas especiais (ex: BRG-PL-15/08)
+                    else:
+                        datas_encontradas = re.findall(r'(\d{1,2})/(\d{1,2})', turma)
+                        if datas_encontradas:
+                            mes = int(datas_encontradas[0][1])
+                            if mes < 7: # Antes de Julho (07)
+                                manter_turma = False
+                    
+                    # Se a turma passou nos filtros, avança para as aulas
+                    if manter_turma:
+                        # --- Começar apenas na Coluna WQ (índice 614) ---
+                        for col_i in range(614, len(df.columns)):
                             
-                            # Detetar se é Laboral ou Pós-Laboral pela hora escrita no Excel
-                            tipo_curso = "Pós-laboral" 
-                            if any(x in aula.lower() for x in ["9h", "10h", "11h", "12h", "14h", "15h", "16h"]):
-                                tipo_curso = "Laboral"
+                            nome_coluna = str(colunas[col_i]).split('.')[0].strip().lower()
+                            if nome_coluna in meses_map:
+                                mes_atual_str = meses_map[nome_coluna]
                                 
-                            # Limpar o nome do módulo (ex: "M1 - 19h" passa a "M1")
-                            modulo = aula.split('-')[0].strip()
+                            # --- ADEUS 2027: Bloqueamos o ano sempre para 2026 ---
+                            ano_atual = 2026
                             
-                            aulas_para_inserir.append({
-                                "formador": formador_atual,
-                                "turma": turma,
-                                "data_aula": data_formatada,
-                                "aula": modulo,
-                                "tipo_curso": tipo_curso
-                            })
-            
-            # Enviar para o Supabase em blocos de 100 para não sobrecarregar
+                            dia = str(df.iloc[0, col_i]).split('.')[0]
+                            if not dia.isdigit(): continue
+                            
+                            aula = str(row.iloc[col_i]).strip()
+                            if aula not in ['nan', 'None', '']:
+                                data_formatada = f"{int(dia):02d}/{mes_atual_str}/{ano_atual}"
+                                
+                                # Deteta se é Laboral ou Pós-Laboral
+                                tipo_curso = "Pós-laboral" 
+                                if any(x in aula.lower() for x in ["9h", "10h", "11h", "12h", "14h", "15h", "16h"]):
+                                    tipo_curso = "Laboral"
+                                    
+                                modulo = aula.split('-')[0].strip()
+                                
+                                aulas_para_inserir.append({
+                                    "formador": formador_atual,
+                                    "turma": turma,
+                                    "data_aula": data_formatada,
+                                    "aula": modulo,
+                                    "tipo_curso": tipo_curso
+                                })
+        
+            # Enviar para o Supabase em blocos
             if aulas_para_inserir:
                 for i in range(0, len(aulas_para_inserir), 100):
                     bloco = aulas_para_inserir[i:i+100]
                     supabase.table("cronogramas_oficiais").insert(bloco).execute()
                 
-                st.success(f"🎉 SUCESSO! Foram importadas {len(aulas_para_inserir)} aulas perfeitamente para a Base de Dados!")
+                st.success(f"🎉 SUCESSO! Foram importadas {len(aulas_para_inserir)} aulas perfeitamente filtradas para a BD!")
                 st.balloons()
             else:
-                st.warning("Não encontrei aulas válidas no Excel.")
+                st.warning("Não encontrei aulas válidas no Excel com estes filtros.")
                 
         except Exception as e:
             st.error(f"Erro ao ler o ficheiro: {e}")
