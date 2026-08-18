@@ -388,7 +388,8 @@ if sala_escolhida == "🎓 Sala da Escola (Gestão)":
             st.rerun()
             
         n_pres = col2.date_input("Dia", key=key_pres)
-        n_form = col_f.selectbox("Formador", list(DRIVE_INDISP_FORMADORES.keys()), index=list(DRIVE_INDISP_FORMADORES.keys()).index(modulo.get("formador", "Elisabete Lobato")), key=f"formador_{m_id}")
+        formadores_ordenados = sorted(DRIVE_INDISP_FORMADORES.keys())
+        n_form = col_f.selectbox("Formador", formadores_ordenados, index=formadores_ordenados.index(modulo.get("formador", "Elisabete Lobato")), key=f"formador_{m_id}")
         if n_form != modulo.get("formador"): modulo["formador"] = n_form; st.rerun()
 
         valido, m_err, m_av = verificar_conflitos_memoria(n_form, n_pres, st.session_state.tipo, df_geral_global, df_indisp_global)
