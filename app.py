@@ -749,7 +749,12 @@ if st.button("🚨 Importar Excel Master para a Base de Dados"):
                 if index == 0: continue # Ignora a linha dos dias
                 
                 val_col0 = str(row.iloc[0]).strip()
-                if val_col0 not in ['nan', 'None', '']: formador_atual = val_col0
+                if val_col0 not in ['nan', 'None', '']: 
+                    # --- FILTRO ANTI-LIXO PARA NOMES DE FORMADORES ---
+                    texto_min = val_col0.lower()
+                    # Ignora se começar por '(', se começar por 'turma', ou contiver a palavra 'colocar'
+                    if not texto_min.startswith('(') and not texto_min.startswith('turma') and 'colocar' not in texto_min:
+                        formador_atual = val_col0
                     
                 turma = str(row.iloc[1]).strip()
                 
