@@ -116,16 +116,30 @@ def verificar_conflitos_memoria(formador, data_aula, tipo_curso, df_geral, df_in
     try: data_aula = datetime.strptime(data_aula, "%Y-%m-%d").date() if isinstance(data_aula, str) else data_aula
     except: data_aula = datetime.strptime(data_aula, "%Y/%m/%d").date()
     data_str = data_aula.strftime('%d/%m/%Y')
+    
+    # 1. Verificação no Excel Geral (Drive)
     if not df_geral.empty:
         aulas = df_geral[(df_geral["Formador"] == formador) & (df_geral["Data"] == data_str)]
         if not aulas.empty:
             texto = " e também ".join([f"'{a}'" for a in aulas["Aula"].astype(str).tolist()])
-            return False, (f"⚠️ Conflito de Sessão Síncrona: O(A) {formador} já tem marcações nesse dia ({data_str}): {texto}!" if any(x in texto.lower() for x in ["ss", "síncrona", "sincrona"]) else f"⚠️ Conflito no Cronograma: O(A) {formador} já tem as seguintes aulas no dia {data_str}: {texto}!"), ""
+            return False, (f"⚠️ Conflito de Sessão Síncrona: O(A) {formador} já tem marcações nesse dia ({data_str}): {texto}!" if any(x in texto.lower() for x in ["ss", "síncrona", "sincrona"]) else f"⚠️ Conflito no Cronograma (Excel): O(A) {formador} já tem as seguintes aulas no dia {data_str}: {texto}!"), ""
+    
+    # 2. Verificação na Base de Dados (Supabase) - A NOVA MAGIA
+    if supabase:
+        try:
+            resposta = supabase.table("cronogramas_oficiais").select("*").eq("formador", formador).eq("data_aula", data_str).execute()
+            if resposta.data:
+                turmas = " e ".join([f"Turma {a.get('turma', '')} ({a.get('tipo_curso', '')})" for a in resposta.data])
+                return False, f"⚠️ Conflito na Base de Dados: O(A) {formador} já tem aulas no dia {data_str} na {turmas}!", ""
+        except: pass
+
+    # 3. Verificação de Indisponibilidade (Excel do Formador)
     if not df_indisp.empty:
         t_procura = "Sábado Manhã" if tipo_curso == "Sábados" else "Sábado Tarde" if tipo_curso == "Sábados Tarde" else mapear_turno(tipo_curso)
         reg = df_indisp[(df_indisp["Formador"] == formador) & (df_indisp["Data"] == data_str) & (df_indisp["Turno"] == t_procura)]
         if not reg.empty:
             return (False, f"⚠️ Conflito: {formador} INDISPONÍVEL para a {t_procura} de {data_str}!", "") if reg.iloc[0]["Status"] == "Indisponível" else (True, "", f"👀 Atenção: Disponibilidade de {formador} EM BRANCO para a {t_procura} de {data_str}.")
+    
     return True, "", ""
 
 def calcular_nome_ficheiro():
