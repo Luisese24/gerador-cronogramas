@@ -149,7 +149,7 @@ def calcular_nome_ficheiro():
     abrev_local = "BRG" if "braga" in l_i else "LSB" if "lisboa" in l_i or "amadora" in l_i else "VNG" if "gaia" in l_i else "AVR" if "aveiro" in l_i else "FAM" if "famalicão" in l_i or "famalicao" in l_i else "DOC"
     return f"C{abrev_tipo}_Cronograma_{st.session_state.tipo.replace(' ', '_')}_{str_data}_{abrev_local}{f'_V{st.session_state.versao}' if st.session_state.versao > 0 else ''}"
 
-def normalizar_nome(nome): return "Sessão Síncrona - M5/M6" if "M5/M6" in nome else "Sessão Síncrona - M7/M8" if "M7/M8" in nome else "Sessão Síncrona" if "Sessão" in nome else nome
+def normalizar_nome(nome): return "Sessão Síncrona - M5/M6" if "Sessão" in nome and "M5/M6" in nome else "Sessão Síncrona - M7/M8" if "Sessão" in nome and "M7/M8" in nome else "Sessão Síncrona" if "Sessão" in nome else nome
 def tem_avaliacao(modulo): return normalizar_nome(modulo.get("nome", "")) not in SEM_AVALIACAO
 def nome_para_celula(nome):
     n = normalizar_nome(nome)
